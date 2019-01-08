@@ -1,0 +1,1 @@
+{"name":"com.landfall.package_publisher","displayName":"Package Publisher","version":"0.0.2","unity":"2018.3","description":"Plugin in the form of an editor window which allows easy publishing of tools to private NPM server.","category":"Unity","keywords":["publish","package","tool"],"dependencies":null,"hideFlags":0}

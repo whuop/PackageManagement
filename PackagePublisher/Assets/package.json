@@ -1,0 +1,1 @@
+{"name":"com.my-company.product-name","displayName":"Product Name","version":"0.0.1","unity":"2018.3","description":"Product description here!","category":"Unity","keywords":["keyword_one","keyword_two"],"dependencies":{"com.my-company.my-product":"0.0.1"},"hideFlags":0}
