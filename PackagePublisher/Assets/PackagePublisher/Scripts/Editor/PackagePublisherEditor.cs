@@ -9,9 +9,6 @@ using System.Collections.Generic;
 
 namespace PackagePublisher
 {
-    
-    
-
     [System.Serializable]
     public class PackageJsonData : ScriptableObject
     {
@@ -29,14 +26,11 @@ namespace PackagePublisher
         public string category;
         [SerializeField]
         public string[] keywords;
-        [SerializeField]
-        public StringStringDictionary dependencies;
-
     }
 
     public class PackagePublisherEditor : EditorWindow
     {
-        private static string REGISTRY_URL = @"http://localhost:4873";
+        private static string REGISTRY_URL = @"http://192.168.1.215:4873";
         private static string LOCAL_JSON_PATH = "Assets/package.json";
         private static string GLOBAL_JSON_PATH = Application.dataPath + "/package.json";
 
@@ -75,13 +69,13 @@ namespace PackagePublisher
 
             EditorGUILayout.LabelField("Package.json Settings");
 
-            var editor = Editor.CreateEditor(m_packageJsonData.targetObject);
+            /*var editor = Editor.CreateEditor(m_packageJsonData.targetObject);
             if (editor != null)
             {
                 editor.OnInspectorGUI();
-            }
+            }*/
 
-            //DrawPackageJson();
+            DrawPackageJson();
         }
 
         private Vector2 _scrollPos = Vector2.zero;
@@ -132,8 +126,8 @@ namespace PackagePublisher
                 c.description = "Product description here!";
                 c.category = "Unity";
                 c.keywords = new string[] { "keyword_one", "keyword_two" };
-                c.dependencies = new StringStringDictionary();
-                c.dependencies.Add(new KeyValuePair<string, string>("com.my-company.my-product", "0.0.1"));
+                //c.dependencies = new StringStringDictionary();
+                //c.dependencies.Add(new KeyValuePair<string, string>("com.my-company.my-product", "0.0.1"));
 
                 SavePackageJson(c);
 
@@ -144,7 +138,7 @@ namespace PackagePublisher
 
             JsonConvert.PopulateObject(packageJson.text, c);
 
-            UnityEngine.Debug.Log("Num Dep: " + c.dependencies.Count);
+            //UnityEngine.Debug.Log("Num Dep: " + c.dependencies.Count);
 
             m_packageJsonData = new SerializedObject(c);
 
@@ -169,15 +163,12 @@ namespace PackagePublisher
             processInfo.UseShellExecute = false;
             processInfo.RedirectStandardOutput = true;
             processInfo.RedirectStandardError = true;
-
-
+            
             process = Process.Start(processInfo);
 
             string output = process.StandardOutput.ReadToEnd();
             string error = process.StandardError.ReadToEnd();
-
-
-
+            
             process.WaitForExit();
 
             exitCode = process.ExitCode;
