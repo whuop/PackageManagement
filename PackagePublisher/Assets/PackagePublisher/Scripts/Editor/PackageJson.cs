@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace PackagePublisher.Json
 {
@@ -25,6 +26,8 @@ namespace PackagePublisher.Json
         public string[] keywords;
         [SerializeField]
         public PackageRepository repository;
+        [SerializeField]
+        public Dictionary<string, string> dependencies;
     }
     
     [System.Serializable]

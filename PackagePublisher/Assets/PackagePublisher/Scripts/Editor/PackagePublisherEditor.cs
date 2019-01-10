@@ -41,6 +41,8 @@ namespace PackagePublisher
         public string[] keywords;
         [SerializeField]
         public PackageRepository repository;
+        [SerializeField]
+        public PackageDependency[] dependencies;
 
         public PackageJson ToPackageJson()
         {
@@ -61,6 +63,12 @@ namespace PackagePublisher
                 url = this.repository.url
             };
 
+            json.dependencies = new Dictionary<string, string>();
+            for(int i = 0; i < this.dependencies.Length; i++)
+            {
+                json.dependencies.Add(this.dependencies[i].packageName, this.dependencies[i].packageVersion);
+            }
+
             return json;
         }
 
@@ -78,7 +86,32 @@ namespace PackagePublisher
 
             this.repository.url = json.repository.url;
             Enum.TryParse<VersionControlType>(json.repository.type, out this.repository.type);
+
+            if (json.dependencies == null)
+                json.dependencies = new Dictionary<string, string>();
+
+            int numDependencies = json.dependencies.Count;
+            this.dependencies = new PackageDependency[numDependencies];
+            int i = 0;
+            foreach(var dep in json.dependencies)
+            {
+                this.dependencies[i] = new PackageDependency()
+                {
+                    packageName = dep.Key,
+                    packageVersion = dep.Value
+                };
+                i++;
+            }
         }
+    }
+
+    [System.Serializable]
+    public struct PackageDependency
+    {
+        [SerializeField]
+        public string packageName;
+        [SerializeField]
+        public string packageVersion;
     }
 
     [System.Serializable]
