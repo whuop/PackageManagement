@@ -11,7 +11,8 @@ namespace PackagePublisher
     {
         public static string[] HIDDEN_DEPENDENCIES = new string[]
         {
-            "com.unity.package-manager-ui"
+            "com.unity.package-manager-ui",
+            "com.landfall.package-publisher"
         };
 
         public static bool IsHiddenDependency(string packageName)

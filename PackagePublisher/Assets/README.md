@@ -6,6 +6,12 @@ Unity plugin that adds an editor window which allows pushing NPM packages to cus
 
 ## Changelog
 
+### [0.1.4] 2019-01-10
+
+### Bug Fixes
+
+- Added com.landfall.package-publisher as an exception in the ManifestLoader hidden (ignored) dependencies. Should no longer be cleared from the project using the "Clear Manifest Dependencies" button.
+
 ### [0.1.3] 2019-01-10
 
 ### Bug Fixes
