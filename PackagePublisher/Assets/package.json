@@ -1,1 +1,24 @@
-{"name":"com.landfall.package-publisher","author":{"name":"Kristian Brodal","email":"brodal@landfall.se","url":"http://www.landfall.se"},"contributors":[],"displayName":"Package Publisher","version":"0.0.9","unity":"2018.3","description":"Unity plugin that adds an editor window which allows pushing NPM packages to custom registry servers.","category":"Unity","keywords":["tool","package","publisher"],"repository":{"type":"github","url":"https://github.com/whuop/PackageManagement.git"},"dependencies":{"com.landfall.test-package":"0.0.2"}}
+{
+  "name": "com.landfall.package-publisher",
+  "author": {
+    "name": "Kristian Brodal",
+    "email": "brodal@landfall.se",
+    "url": "http://www.landfall.se"
+  },
+  "contributors": [],
+  "displayName": "Package Publisher",
+  "version": "0.1.0",
+  "unity": "2018.3",
+  "description": "Unity plugin that adds an editor window which allows pushing NPM packages to custom registry servers.",
+  "category": "Unity",
+  "keywords": [
+    "tool",
+    "package",
+    "publisher"
+  ],
+  "repository": {
+    "type": "github",
+    "url": "https://github.com/whuop/PackageManagement.git"
+  },
+  "dependencies": {}
+}

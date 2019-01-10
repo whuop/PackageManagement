@@ -141,7 +141,7 @@ namespace PackagePublisher
 
     public class PackagePublisherEditor : EditorWindow
     {
-        private static string LOCAL_JSON_PATH = "Assets/package.json";
+        private const string LOCAL_JSON_PATH = "Assets/package.json";
         private static string GLOBAL_JSON_PATH = Application.dataPath + "/package.json";
 
         private SerializedObject m_packageJsonData;
@@ -161,6 +161,29 @@ namespace PackagePublisher
             window.Show();
         }
 
+        [MenuItem("Landfall/Clear Manifest Dependencies")]
+        public static void ClearManifestDependencyList()
+        {
+            var manifest = ManifestLoader.LoadManifest();
+            
+
+            //  Don't remove package manager ui.
+            Dictionary<string, string> newDeps = new Dictionary<string, string>();
+
+            for (int i = 0; i < ManifestLoader.HIDDEN_DEPENDENCIES.Length; i++)
+            {
+                var key = ManifestLoader.HIDDEN_DEPENDENCIES[i];
+                if (manifest.dependencies.ContainsKey(key))
+                {
+                    newDeps.Add(key, manifest.dependencies[key]);
+                }
+            }
+
+            manifest.dependencies = newDeps;
+            ManifestLoader.SaveManifest(manifest);
+            AssetDatabase.Refresh();
+        }
+        
         private void OnEnable()
         {
             Initialize();
@@ -168,8 +191,10 @@ namespace PackagePublisher
 
         private void Initialize()
         {
+            InitializeVersionControlTypes();
             InitializeRegistries();
             LoadPackage();
+            UpdateManifest();
         }
 
         private void InitializeVersionControlTypes()
@@ -201,6 +226,45 @@ namespace PackagePublisher
             }
         }
 
+        private void UpdateManifest()
+        {
+            var manifest = ManifestLoader.LoadManifest();
+
+            if (m_chosenRegistry == 0)
+            {
+                string url = @"http://192.168.1.215:4873";
+                manifest.scopedRegistries[0].url = url;
+            }
+            else if (m_chosenRegistry == 1)
+            {
+                manifest.scopedRegistries[0].url = @"http://localhost:4873";
+            }
+
+            var dependencies = manifest.GetDependencies(true);
+
+            PackageData data = (PackageData)m_packageJsonData.targetObject;
+
+            int numDependencies = dependencies.Count;
+            data.dependencies = new PackageDependency[numDependencies];
+            int i = 0;
+            foreach (var dep in dependencies)
+            {
+                UnityEngine.Debug.Log("Updating with dependency: " + dep.Key);
+                data.dependencies[i] = new PackageDependency()
+                {
+                    packageName = dep.Key,
+                    packageVersion = dep.Value
+                };
+                i++;
+            }
+
+            m_packageJsonData.ApplyModifiedProperties();
+
+            ManifestLoader.SaveManifest(manifest);
+            SavePackageJson(data.ToPackageJson());
+            LoadPackage();
+        }
+
         private void OnGUI()
         {
             if (m_packageJsonData == null)
@@ -210,7 +274,16 @@ namespace PackagePublisher
             }
 
             //  Draw registry picker
-            m_chosenRegistry = EditorGUILayout.Popup("Registry", m_chosenRegistry, m_registryList);
+            int newRegistry = EditorGUILayout.Popup("Registry", m_chosenRegistry, m_registryList);
+            if (newRegistry != m_chosenRegistry)
+            {
+                m_chosenRegistry = newRegistry;
+
+                //  Update manifest to the correct registry
+                UpdateManifest();
+            }
+
+
 
             if (GUILayout.Button("Publish Package"))
             {
@@ -220,6 +293,8 @@ namespace PackagePublisher
             EditorGUILayout.LabelField("Package.json Settings");
 
             DrawPackageJson();
+
+            
         }
 
         private Vector2 _scrollPos = Vector2.zero;
@@ -292,7 +367,7 @@ namespace PackagePublisher
 
         private void SavePackageJson(PackageJson data)
         {
-            string json = JsonConvert.SerializeObject(data);
+            string json = JsonConvert.SerializeObject(data, Formatting.Indented);
             File.WriteAllText(GLOBAL_JSON_PATH, json);
             AssetDatabase.Refresh();
         }
