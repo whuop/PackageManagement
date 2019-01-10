@@ -6,11 +6,20 @@ using UnityEditor;
 using UnityEngine;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Linq;
+using PackagePublisher.Json;
 
 namespace PackagePublisher
 {
+    public enum VersionControlType : int
+    {
+        github = 0,
+        gitlab = 1,
+        bitbucket = 2
+    }
+
     [System.Serializable]
-    public class PackageJsonData : ScriptableObject
+    public class PackageData : ScriptableObject
     {
         [SerializeField]
         public string name;
@@ -30,7 +39,55 @@ namespace PackagePublisher
         public string category;
         [SerializeField]
         public string[] keywords;
-        
+        [SerializeField]
+        public PackageRepository repository;
+
+        public PackageJson ToPackageJson()
+        {
+            PackageJson json = new PackageJson();
+            json.name = this.name;
+            json.author = this.author;
+            json.contributors = this.contributors;
+            json.displayName = this.displayName;
+            json.version = this.version;
+            json.unity = this.unity;
+            json.description = this.description;
+            json.category = this.category;
+            json.keywords = this.keywords;
+             
+            json.repository = new Json.PackageRepository()
+            {
+                type = ((VersionControlType)this.repository.type).ToString(),
+                url = this.repository.url
+            };
+
+            return json;
+        }
+
+        public void FromPackageJson(PackageJson json)
+        {
+            this.name = json.name;
+            this.author = json.author;
+            this.contributors = json.contributors;
+            this.displayName = json.displayName;
+            this.version = json.version;
+            this.unity = json.unity;
+            this.description = json.description;
+            this.category = json.category;
+            this.keywords = json.keywords;
+
+            this.repository.url = json.repository.url;
+            Enum.TryParse<VersionControlType>(json.repository.type, out this.repository.type);
+        }
+    }
+
+    [System.Serializable]
+    public struct PackageRepository
+    {
+        [SerializeField]
+        public VersionControlType type;
+        [SerializeField]
+        public string url;
     }
 
     [System.Serializable]
@@ -60,6 +117,9 @@ namespace PackagePublisher
         private int m_chosenRegistry = 0;
         private string[] m_registryList;
 
+        private string[] m_versionControlList;
+        private int m_chosenVersionControl;
+
         [MenuItem("Landfall/Package Publisher")]
         public static void ShowWindow()
         {
@@ -77,6 +137,19 @@ namespace PackagePublisher
         {
             InitializeRegistries();
             LoadPackage();
+        }
+
+        private void InitializeVersionControlTypes()
+        {
+            var values = Enum.GetValues(typeof(VersionControlType)).Cast<VersionControlType>();
+            int numElements = values.Count();
+            m_versionControlList = new string[numElements];
+            int i = 0;
+            foreach(var val in values)
+            {
+                m_versionControlList[i] = val.ToString();
+                i++;
+            }
         }
 
         private void InitializeRegistries()
@@ -145,14 +218,14 @@ namespace PackagePublisher
             if (EditorGUI.EndChangeCheck())
             {
                 m_packageJsonData.ApplyModifiedProperties();
-                SavePackageJson((PackageJsonData)m_packageJsonData.targetObject);
+                SavePackageJson(((PackageData)m_packageJsonData.targetObject).ToPackageJson());
             }
         }
 
         private void LoadPackage()
         {
             TextAsset packageJson = AssetDatabase.LoadAssetAtPath<TextAsset>(LOCAL_JSON_PATH);
-            var c = ScriptableObject.CreateInstance<PackageJsonData>();
+            var c = ScriptableObject.CreateInstance<PackageData>();
 
             if (packageJson == null)
             {
@@ -167,14 +240,16 @@ namespace PackagePublisher
                 //c.dependencies = new StringStringDictionary();
                 //c.dependencies.Add(new KeyValuePair<string, string>("com.my-company.my-product", "0.0.1"));
 
-                SavePackageJson(c);
+                SavePackageJson(c.ToPackageJson());
 
                 packageJson = AssetDatabase.LoadAssetAtPath<TextAsset>(LOCAL_JSON_PATH);
             }
 
             UnityEngine.Debug.Log("Loaded Package: " + packageJson.text);
 
-            JsonConvert.PopulateObject(packageJson.text, c);
+            PackageJson jsonPopulate = new PackageJson();
+            JsonConvert.PopulateObject(packageJson.text, jsonPopulate);
+            c.FromPackageJson(jsonPopulate);
 
             //UnityEngine.Debug.Log("Num Dep: " + c.dependencies.Count);
 
@@ -182,7 +257,7 @@ namespace PackagePublisher
 
         }
 
-        private void SavePackageJson(PackageJsonData data)
+        private void SavePackageJson(PackageJson data)
         {
             string json = JsonConvert.SerializeObject(data);
             File.WriteAllText(GLOBAL_JSON_PATH, json);
