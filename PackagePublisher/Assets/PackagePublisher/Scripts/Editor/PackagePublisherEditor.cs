@@ -136,14 +136,9 @@ namespace PackagePublisher
         public string Name;
         public string Url;
     }
-
     
-
     public class PackagePublisherEditor : EditorWindow
     {
-        private const string LOCAL_JSON_PATH = "Assets/package.json";
-        private static string GLOBAL_JSON_PATH = Application.dataPath + "/package.json";
-
         private SerializedObject m_packageJsonData;
 
         private List<PackageRegistry> m_registries;
@@ -152,6 +147,9 @@ namespace PackagePublisher
 
         private string[] m_versionControlList;
         private int m_chosenVersionControl;
+
+        private string m_localJsonPath;
+        private string m_globalJsonPath;
 
         [MenuItem("Landfall/Package Publisher")]
         public static void ShowWindow()
@@ -189,12 +187,21 @@ namespace PackagePublisher
             Initialize();
         }
 
+        
+
         private void Initialize()
         {
+            InitializePaths();
             InitializeVersionControlTypes();
             InitializeRegistries();
             LoadPackage();
             UpdateManifest();
+        }
+
+        private void InitializePaths()
+        {
+            m_localJsonPath = "Assets/package.json";
+            m_globalJsonPath = Application.dataPath + "/package.json";
         }
 
         private void InitializeVersionControlTypes()
@@ -332,7 +339,7 @@ namespace PackagePublisher
 
         private void LoadPackage()
         {
-            TextAsset packageJson = AssetDatabase.LoadAssetAtPath<TextAsset>(LOCAL_JSON_PATH);
+            TextAsset packageJson = AssetDatabase.LoadAssetAtPath<TextAsset>(m_localJsonPath);
             var c = ScriptableObject.CreateInstance<PackageData>();
 
             if (packageJson == null)
@@ -350,7 +357,7 @@ namespace PackagePublisher
 
                 SavePackageJson(c.ToPackageJson());
 
-                packageJson = AssetDatabase.LoadAssetAtPath<TextAsset>(LOCAL_JSON_PATH);
+                packageJson = AssetDatabase.LoadAssetAtPath<TextAsset>(m_localJsonPath);
             }
 
             UnityEngine.Debug.Log("Loaded Package: " + packageJson.text);
@@ -368,7 +375,7 @@ namespace PackagePublisher
         private void SavePackageJson(PackageJson data)
         {
             string json = JsonConvert.SerializeObject(data, Formatting.Indented);
-            File.WriteAllText(GLOBAL_JSON_PATH, json);
+            File.WriteAllText(m_globalJsonPath, json);
             AssetDatabase.Refresh();
         }
 
