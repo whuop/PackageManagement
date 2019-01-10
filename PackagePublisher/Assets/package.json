@@ -7,7 +7,7 @@
   },
   "contributors": [],
   "displayName": "Package Publisher",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "unity": "2018.3",
   "description": "Unity plugin that adds an editor window which allows pushing NPM packages to custom registry servers.",
   "category": "Unity",

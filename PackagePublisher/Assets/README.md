@@ -6,6 +6,12 @@ Unity plugin that adds an editor window which allows pushing NPM packages to cus
 
 ## Changelog
 
+### [0.1.1] 2019-01-10
+
+### Bug Fixes
+
+- Fixed get_datapath error that sometimes occured when opening the Package Publisher window.
+
 ### [0.1.0] 2019-01-10
 
 ### Features
