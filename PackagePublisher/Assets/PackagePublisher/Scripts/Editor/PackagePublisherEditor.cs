@@ -15,6 +15,10 @@ namespace PackagePublisher
         [SerializeField]
         public string name;
         [SerializeField]
+        public PackageAuthor author;
+        [SerializeField]
+        public PackageAuthor[] contributors;
+        [SerializeField]
         public string displayName;
         [SerializeField]
         public string version;
@@ -26,15 +30,35 @@ namespace PackagePublisher
         public string category;
         [SerializeField]
         public string[] keywords;
+        
     }
+
+    [System.Serializable]
+    public struct PackageAuthor
+    {
+        public string name;
+        public string email;
+        public string url;
+    }
+
+    public struct PackageRegistry
+    {
+        public string Name;
+        public string Url;
+    }
+
+    
 
     public class PackagePublisherEditor : EditorWindow
     {
-        private static string REGISTRY_URL = @"http://192.168.1.215:4873";
         private static string LOCAL_JSON_PATH = "Assets/package.json";
         private static string GLOBAL_JSON_PATH = Application.dataPath + "/package.json";
 
         private SerializedObject m_packageJsonData;
+
+        private List<PackageRegistry> m_registries;
+        private int m_chosenRegistry = 0;
+        private string[] m_registryList;
 
         [MenuItem("Landfall/Package Publisher")]
         public static void ShowWindow()
@@ -51,7 +75,24 @@ namespace PackagePublisher
 
         private void Initialize()
         {
+            InitializeRegistries();
             LoadPackage();
+        }
+
+        private void InitializeRegistries()
+        {
+            var landfallRegistry = new PackageRegistry() { Name = "Landfall Registry", Url = @"http://192.168.1.215:4873" };
+            var localRegistry = new PackageRegistry() { Name = "Local Registry", Url = @"http://localhost:4873" };
+
+            m_registries = new List<PackageRegistry>();
+            m_registries.Add(landfallRegistry);
+            m_registries.Add(localRegistry);
+
+            m_registryList = new string[m_registries.Count];
+            for(int i = 0; i < m_registries.Count; i++)
+            {
+                m_registryList[i] = m_registries[i].Name;
+            }
         }
 
         private void OnGUI()
@@ -62,18 +103,15 @@ namespace PackagePublisher
                 return;
             }
 
+            //  Draw registry picker
+            m_chosenRegistry = EditorGUILayout.Popup("Registry", m_chosenRegistry, m_registryList);
+
             if (GUILayout.Button("Publish Package"))
             {
-                PublishPackage(string.Format(@"npm publish --registry {0}", REGISTRY_URL));
+                PublishPackage(string.Format(@"npm publish --registry {0}", m_registries[m_chosenRegistry].Url));
             }
 
             EditorGUILayout.LabelField("Package.json Settings");
-
-            /*var editor = Editor.CreateEditor(m_packageJsonData.targetObject);
-            if (editor != null)
-            {
-                editor.OnInspectorGUI();
-            }*/
 
             DrawPackageJson();
         }
