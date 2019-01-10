@@ -6,6 +6,18 @@ Unity plugin that adds an editor window which allows pushing NPM packages to cus
 
 ## Changelog
 
+### [0.1.3] 2019-01-10
+
+### Bug Fixes
+
+- Fixed a bug in the auto creation of the package.json file if one couldn't be found. The auto generator was missing a couple of the new package.json properties.
+
+### [0.1.2] 2019-01-10
+
+### Features
+
+- Added assembly definition file, in order to check if the compilation of the package publisher editor window is more successful then.
+
 ### [0.1.1] 2019-01-10
 
 ### Bug Fixes

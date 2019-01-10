@@ -352,8 +352,10 @@ namespace PackagePublisher
                 c.description = "Product description here!";
                 c.category = "Unity";
                 c.keywords = new string[] { "keyword_one", "keyword_two" };
-                //c.dependencies = new StringStringDictionary();
-                //c.dependencies.Add(new KeyValuePair<string, string>("com.my-company.my-product", "0.0.1"));
+                c.dependencies = new PackageDependency[0];
+                c.author = new PackageAuthor { name = "John Doe", email = "john.doe@gmail.com", url = "" };
+                c.contributors = new PackageAuthor[0];
+                c.repository = new PackageRepository() { type = VersionControlType.github, url = "" };
 
                 SavePackageJson(c.ToPackageJson());
 
