@@ -6,6 +6,12 @@ Unity plugin that adds an editor window which allows pushing NPM packages to cus
 
 ## Changelog
 
+### [0.1.7] 2019-01-11
+
+### Features
+
+- Added support for .npmignore files.
+
 ### [0.1.6] 2019-01-11
 
 ###  Bug Fixes
