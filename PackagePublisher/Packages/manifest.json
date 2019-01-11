@@ -2,7 +2,7 @@
   "scopedRegistries": [
     {
       "name": "Main",
-      "url": "http://localhost:4873",
+      "url": "http://192.168.1.215:4873",
       "scopes": [
         "com.landfall"
       ]

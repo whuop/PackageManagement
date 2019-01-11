@@ -6,6 +6,12 @@ Unity plugin that adds an editor window which allows pushing NPM packages to cus
 
 ## Changelog
 
+### [0.1.6] 2019-01-11
+
+###  Bug Fixes
+
+- Now runs npm process async. Should no longer cause Unity to stall when an error occurs.
+
 ### [0.1.4] 2019-01-10
 
 ### Bug Fixes

@@ -186,9 +186,7 @@ namespace PackagePublisher
         {
             Initialize();
         }
-
         
-
         private void Initialize()
         {
             InitializePaths();
@@ -381,41 +379,38 @@ namespace PackagePublisher
             AssetDatabase.Refresh();
         }
 
-        private void PublishPackage(string command)
+        private async void PublishPackage(string command)
         {
-            int exitCode;
-            ProcessStartInfo processInfo;
-            Process process;
+            await Landfall.Processes.ProcessRunner.RunAsync("cmd.exe", "/c " + command, Application.dataPath, 
+                OnPublishFinish, OnPublishOutput, OnPublishError);
+        }
 
-            processInfo = new ProcessStartInfo("cmd.exe", "/c " + command);
-            processInfo.WorkingDirectory = Application.dataPath;
-            processInfo.CreateNoWindow = true;
-            processInfo.UseShellExecute = false;
-            processInfo.RedirectStandardOutput = true;
-            processInfo.RedirectStandardError = true;
-            
-            process = Process.Start(processInfo);
+        private void OnPublishFinish(object sender, EventArgs args)
+        {
+            Process p = (Process)sender;
 
-            string output = process.StandardOutput.ReadToEnd();
-            string error = process.StandardError.ReadToEnd();
-            
-            process.WaitForExit();
-
-            exitCode = process.ExitCode;
-            process.Close();
-
-            if (exitCode == 0)
+            if (p.ExitCode == 0)
             {
-                if (!string.IsNullOrEmpty(output))
-                    UnityEngine.Debug.Log(output);
                 UnityEngine.Debug.Log("Successfully published package!");
             }
             else
             {
-                if (!string.IsNullOrEmpty(error))
-                    UnityEngine.Debug.LogError(error);
-                UnityEngine.Debug.LogError("Failed to publish package, read errors above!");
+                UnityEngine.Debug.LogError("Failed to publish package! See output above.");
             }
+        }
+
+        private void OnPublishOutput(object sender, DataReceivedEventArgs args)
+        {
+            if (String.IsNullOrEmpty(args.Data) || args.Data == "Null")
+                return;
+            UnityEngine.Debug.Log(args.Data);
+        }
+
+        private void OnPublishError(object sender, DataReceivedEventArgs args)
+        {
+            if (String.IsNullOrEmpty(args.Data) || args.Data == "Null")
+                return;
+            UnityEngine.Debug.Log(args.Data);
         }
     }
 
